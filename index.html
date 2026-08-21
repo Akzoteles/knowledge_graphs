@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal knowledge graphs — a directory</title>
+<meta name="description" content="A directory of dependency-graph-style personal knowledge sites, wherever they're hosted.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ea;
+    --bg-card: #fffef9;
+    --border: #ddd6c4;
+    --border-soft: #e8e2d3;
+    --text: #211d16;
+    --text-muted: #6b6355;
+    --text-faint: #9c9481;
+    --accent: #2e5d4b;
+    --accent-soft: rgba(46, 93, 75, 0.09);
+    --host-gh: #57708c;
+    --host-vercel: #16181b;
+    --host-web: #b5762f;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(46, 93, 75, 0.05), transparent 42%),
+      radial-gradient(circle at 90% 15%, rgba(181, 118, 47, 0.05), transparent 40%);
+  }
+
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: #f6f3ea; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 64px 28px 80px; }
+
+  /* ---------- header ---------- */
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Newsreader', serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: clamp(32px, 5vw, 50px);
+    line-height: 1.08;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    font-size: 15.5px;
+    color: var(--text-muted);
+    max-width: 58ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin: 16px 0 0;
+    line-height: 1.6;
+    max-width: 60ch;
+  }
+
+  /* ---------- toolbar ---------- */
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 36px;
+    padding: 18px 0;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 13px;
+    cursor: pointer;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #f6f3ea;
+  }
+
+  select#sort-select {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+
+  /* ---------- grid ---------- */
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 18px;
+    margin-top: 26px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .card-index {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .host-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 9px 2px 7px;
+  }
+
+  .host-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+
+  .site-name {
+    font-family: 'Newsreader', serif;
+    font-weight: 500;
+    font-size: 20px;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .byline {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--text-faint);
+    margin: -6px 0 0;
+  }
+
+  .site-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0;
+    flex: 1;
+  }
+
+  .tags {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--host-web);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .card-footer {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .date-info {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .date-info .live-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .card-links { display: flex; gap: 14px; }
+
+  .card-links a {
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--accent);
+  }
+
+  .card-links a.secondary { color: var(--text-faint); }
+  .card-links a:hover { text-decoration: underline; }
+
+  /* ---------- states / footer ---------- */
+
+  .status-message {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 50px 0;
+    text-align: center;
+  }
+
+  footer.page-footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 40px 18px 60px; }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow"><span class="dot"></span>A directory</p>
+    <h1>Personal knowledge graphs</h1>
+    <p class="subtitle">Dependency-graph-style sites people have built to map out what they know — ideas as nodes, connections as edges. Hosted wherever their makers chose to host them.</p>
+    <p class="note">Cards with a public GitHub repo pull a live "updated" date from GitHub. Everything else shows the date it was added to this list by hand — there's no way to check "last updated" generically across Vercel, custom domains, and everything in between.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="chip-row" id="host-filters">
+      <button class="chip active" data-host="all">All</button>
+      <button class="chip" data-host="github-pages">GitHub Pages</button>
+      <button class="chip" data-host="vercel">Vercel</button>
+      <button class="chip" data-host="web">Other web</button>
+    </div>
+    <select id="sort-select">
+      <option value="added" selected>Sort: order added</option>
+      <option value="name">Sort: name (A\u2013Z)</option>
+      <option value="recent">Sort: most recently active</option>
+    </select>
+  </div>
+
+  <div id="results"><div class="grid" id="grid"></div></div>
+
+  <footer class="page-footer">
+    <span id="count-line"></span>
+    <span>Static site &mdash; no server, no build step.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+
+  /* ============================================================
+     SITES — this is the whole directory. Add, remove, or edit
+     entries here. Every field but "name", "url", "host", and
+     "description" is optional.
+
+     host must be exactly: 'github-pages', 'vercel', or 'web'
+
+     repoUrl (optional): a github.com/{owner}/{repo} URL. If set,
+     the card automatically shows a LIVE "updated Xd ago" pulled
+     from that repo's last commit, and dateAdded is only used as
+     a fallback for sorting if the live fetch ever fails.
+
+     dateAdded (optional but recommended): 'YYYY-MM-DD', the day
+     you added this entry. Shown on cards with no repoUrl, and
+     used as a tiebreaker for the "most recently active" sort.
+     ============================================================ */
+  const SITES = [
+    {
+      name: 'The Conceptual Architecture',
+      url: 'https://akzoteles.github.io/architecture/',
+      host: 'github-pages',
+      author: 'akzoteles',
+      description: 'A dependency graph spanning metaphysics, ontology, epistemology, and mathematics.',
+      tags: ['philosophy', 'mathematics'],
+      repoUrl: 'https://github.com/akzoteles/architecture',
+      dateAdded: '2026-08-19',
+    },
+    {
+      name: 'Example — GitHub Pages site',
+      url: 'https://example.github.io/',
+      host: 'github-pages',
+      author: '',
+      description: 'Replace this with a real find. Any repo with GitHub Pages enabled behaves exactly like the entry above — add a repoUrl to get a live updated date.',
+      tags: ['placeholder'],
+      repoUrl: '',
+      dateAdded: '2026-08-19',
+    },
+    {
+      name: 'Example — Vercel site',
+      url: 'https://example.vercel.app/',
+      host: 'vercel',
+      author: '',
+      description: 'Replace this with a real find. No repoUrl needed unless the source happens to be public on GitHub too.',
+      tags: ['placeholder'],
+      repoUrl: '',
+      dateAdded: '2026-08-19',
+    },
+    {
+      name: 'Example — other web',
+      url: 'https://example.com/',
+      host: 'web',
+      author: '',
+      description: 'For anything on a personal domain, Netlify, or elsewhere that isn\u2019t GitHub Pages or Vercel specifically.',
+      tags: ['placeholder'],
+      repoUrl: '',
+      dateAdded: '2026-08-19',
+    },
+  ];
+
+  /* ============================================================ */
+
+  const HOST_LABELS = { 'github-pages': 'GitHub Pages', vercel: 'Vercel', web: 'Other web' };
+  const HOST_COLORS = { 'github-pages': 'var(--host-gh)', vercel: 'var(--host-vercel)', web: 'var(--host-web)' };
+
+  function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function relativeTime(iso) {
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (days < 1) return 'today';
+    if (days === 1) return '1 day ago';
+    if (days < 30) return days + ' days ago';
+    const months = Math.floor(days / 30);
+    if (months === 1) return '1 month ago';
+    if (months < 12) return months + ' months ago';
+    const years = Math.floor(months / 12);
+    return years === 1 ? '1 year ago' : years + ' years ago';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+  }
+
+  function parseGithubRepo(url) {
+    if (!url) return null;
+    const m = url.match(/^https?:\/\/github\.com\/([^\/\s]+)\/([^\/\s]+?)\/?$/i);
+    if (!m) return null;
+    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
+  }
+
+  async function enrichWithLiveData(sites) {
+    return Promise.all(sites.map(async site => {
+      const parsed = parseGithubRepo(site.repoUrl);
+      if (!parsed) return site;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, {
+          headers: { Accept: 'application/vnd.github+json' }
+        });
+        if (!res.ok) return site;
+        const data = await res.json();
+        return Object.assign({}, site, { livePushedAt: data.pushed_at });
+      } catch (e) {
+        return site;
+      }
+    }));
+  }
+
+  function cardHTML(site, index) {
+    const hostLabel = HOST_LABELS[site.host] || site.host;
+    const hostColor = HOST_COLORS[site.host] || 'var(--text-faint)';
+    const idx = String(index + 1).padStart(2, '0');
+
+    let dateInfo;
+    if (site.livePushedAt) {
+      dateInfo = `<span class="live-dot"></span>repo updated ${relativeTime(site.livePushedAt)}`;
+    } else if (site.dateAdded) {
+      dateInfo = `added ${formatDate(site.dateAdded)}`;
+    } else {
+      dateInfo = '';
+    }
+
+    return `
+      <article class="card">
+        <div class="card-top">
+          <span class="card-index">No. ${idx}</span>
+          <span class="host-badge"><span class="dot" style="background:${hostColor}"></span>${hostLabel}</span>
+        </div>
+        <h2 class="site-name">${escapeHTML(site.name)}</h2>
+        ${site.author ? `<p class="byline">by ${escapeHTML(site.author)}</p>` : ''}
+        <p class="site-desc">${escapeHTML(site.description || '')}</p>
+        ${site.tags && site.tags.length ? `<div class="tags">${site.tags.map(t => '#' + escapeHTML(t)).join(' ')}</div>` : ''}
+        <div class="card-footer">
+          <span class="date-info">${dateInfo}</span>
+          <div class="card-links">
+            <a href="${site.url}" target="_blank" rel="noopener">Visit site \u2197</a>
+            ${site.repoUrl ? `<a class="secondary" href="${site.repoUrl}" target="_blank" rel="noopener">Source \u2197</a>` : ''}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  let ENRICHED_SITES = SITES.slice();
+  let activeHost = 'all';
+  let activeSort = 'added';
+
+  function effectiveDate(site) {
+    return site.livePushedAt || (site.dateAdded ? site.dateAdded + 'T00:00:00' : null);
+  }
+
+  function render() {
+    let list = ENRICHED_SITES.map((s, i) => ({ site: s, originalIndex: i }));
+
+    if (activeHost !== 'all') {
+      list = list.filter(x => x.site.host === activeHost);
+    }
+
+    if (activeSort === 'name') {
+      list.sort((a, b) => a.site.name.localeCompare(b.site.name));
+    } else if (activeSort === 'recent') {
+      list.sort((a, b) => {
+        const da = effectiveDate(a.site), db = effectiveDate(b.site);
+        if (!da && !db) return a.originalIndex - b.originalIndex;
+        if (!da) return 1;
+        if (!db) return -1;
+        return new Date(db) - new Date(da);
+      });
+    }
+    // 'added' — keep original order, filtering already applied
+
+    const grid = document.getElementById('grid');
+    if (list.length === 0) {
+      grid.innerHTML = '';
+      document.getElementById('results').innerHTML = '<p class="status-message">No entries match this filter yet.</p><div class="grid" id="grid"></div>';
+    } else {
+      document.getElementById('results').innerHTML = '<div class="grid" id="grid"></div>';
+      document.getElementById('grid').innerHTML = list.map((x, i) => cardHTML(x.site, i)).join('');
+    }
+
+    document.getElementById('count-line').textContent =
+      ENRICHED_SITES.length + (ENRICHED_SITES.length === 1 ? ' entry listed' : ' entries listed');
+  }
+
+  document.querySelectorAll('#host-filters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#host-filters .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeHost = chip.dataset.host;
+      render();
+    });
+  });
+
+  document.getElementById('sort-select').addEventListener('change', e => {
+    activeSort = e.target.value;
+    render();
+  });
+
+  render();
+  enrichWithLiveData(SITES).then(sites => {
+    ENRICHED_SITES = sites;
+    render();
+  });
+
+})();
+</script>
+
+</body>
+</html>
